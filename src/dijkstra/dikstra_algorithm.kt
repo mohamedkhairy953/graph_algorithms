@@ -3,33 +3,55 @@ package dijkstra
 import DirectedGraph
 import java.util.*
 
-fun dijkstraImp(g: DirectedGraph, startNode: String) {
+fun dijkstraImp(g: DirectedGraph, startNode: String): MutableMap<String, Double> {
     val visitedNodes = mutableSetOf<String>()
     val distanceMap = mutableMapOf<String, Double>()
-    val prevNodes = mutableMapOf<String, String>()
-    val minPQ: MutableSet<String> = mutableSetOf()
     distanceMap[startNode] = 0.0
-    minPQ.add(startNode)
     g.nodes.forEach {
         if (it != startNode)
             distanceMap[it] = Double.MAX_VALUE
     }
-    while (minPQ.isNotEmpty()) {
-        val selectedNode = minPQ.peek()
-        g.graph[selectedNode]!!.forEach { neighbor ->
-            if (neighbor !in visitedNodes) {
-                val altPath = distanceMap[selectedNode]!!.plus(distanceBetween(selectedNode, neighbor))
-                if (altPath < distanceMap[neighbor]!!){
-                    distanceMap[neighbor]=altPath
-                    prevNodes[neighbor] = selectedNode
-                    minPQ.add(neighbor)
-                }
+    while (visitedNodes.size < g.nodes.size) {
+        val edges = getNotVisitedNeighborsOfVisitedNodes(visitedNodes, g)
+        val shortestEdge = getShortestEdge(g,edges)
+        if (shortestEdge == null)
+            return distanceMap
+        else {
+            val value = shortestEdge.value
+            val key = shortestEdge.key
+            visitedNodes.add(value)
+            if ((distanceBetween(g,key, value) + distanceMap[key]!!) < distanceMap[value]!!) {
+                distanceMap[value] = (distanceBetween(g,key, value) + distanceMap[key]!!)
             }
         }
     }
-
+    return distanceMap
 }
 
-fun distanceBetween(shortestNode: String?, neighbor: String): Double {
+fun getShortestEdge(g: DirectedGraph,edges: MutableMap<String, String>): MutableMap.MutableEntry<String, String>? {
+    var shortestDist = Double.MAX_VALUE
+    var shortestEdge: MutableMap.MutableEntry<String, String>? = null
+    for (n in edges) {
+        val d = distanceBetween(g,n.key, n.value)
+        if (d < shortestDist) {
+            shortestDist = d
+            shortestEdge = n
+        }
+    }
+    return shortestEdge
+}
 
+fun getNotVisitedNeighborsOfVisitedNodes(visited: MutableSet<String>, g: DirectedGraph): MutableMap<String, String> {
+    val allNotVisitedNeighbors = mutableMapOf<String, String>()
+    visited.forEach {
+        g.graph[it]!!.forEach { n ->
+            if (n !in visited)
+                allNotVisitedNeighbors[it] = n
+        }
+    }
+    return allNotVisitedNeighbors
+}
+
+fun distanceBetween(g: DirectedGraph, v: String?, n: String): Double {
+    return 0.0; //TODO return actual distance
 }
