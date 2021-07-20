@@ -1,7 +1,6 @@
 package dijkstra
 
 import DirectedGraph
-import java.util.*
 
 fun dijkstraImp(g: DirectedGraph, startNode: String): MutableMap<String, Double> {
     val visitedNodes = mutableSetOf<String>()
@@ -12,16 +11,16 @@ fun dijkstraImp(g: DirectedGraph, startNode: String): MutableMap<String, Double>
             distanceMap[it] = Double.MAX_VALUE
     }
     while (visitedNodes.size < g.nodes.size) {
-        val edges = getNotVisitedNeighborsOfVisitedNodes(visitedNodes, g)
-        val shortestEdge = getShortestEdge(g,edges)
+        val edges = dijkstra_heap.getNotVisitedNeighborsOfVisitedNodes(visitedNodes, g)
+        val shortestEdge = dijkstra_heap.getShortestEdge(g, edges)
         if (shortestEdge == null)
             return distanceMap
         else {
             val value = shortestEdge.value
             val key = shortestEdge.key
             visitedNodes.add(value)
-            if ((distanceBetween(g,key, value) + distanceMap[key]!!) < distanceMap[value]!!) {
-                distanceMap[value] = (distanceBetween(g,key, value) + distanceMap[key]!!)
+            if ((dijkstra_heap.distanceBetween(g, key, value) + distanceMap[key]!!) < distanceMap[value]!!) {
+                distanceMap[value] = (dijkstra_heap.distanceBetween(g, key, value) + distanceMap[key]!!)
             }
         }
     }
@@ -32,7 +31,7 @@ fun getShortestEdge(g: DirectedGraph,edges: MutableMap<String, String>): Mutable
     var shortestDist = Double.MAX_VALUE
     var shortestEdge: MutableMap.MutableEntry<String, String>? = null
     for (n in edges) {
-        val d = distanceBetween(g,n.key, n.value)
+        val d = dijkstra_heap.distanceBetween(g, n.key, n.value)
         if (d < shortestDist) {
             shortestDist = d
             shortestEdge = n
